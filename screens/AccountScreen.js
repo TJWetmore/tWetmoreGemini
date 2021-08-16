@@ -15,6 +15,7 @@ import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 const screenWidth = Dimensions.get('window').width;
 
+// default Chart data so page doesn't crash on initial render (it won't given that I have that ternery statement but... just to be safe)
 const defaultChartData = {
   labels: [],
   datasets: [
@@ -27,23 +28,25 @@ const defaultChartData = {
 const AccountScreen = ({ navigation: { navigate }, route }) => {
   const { user, balance, transactions } = route.params;
 
+  // Taking state from params so I can manipulate it later
   const [userName, setUserName] = useState(user);
-  const [userBalance, setUserBalance] = useState(balance);
+  const [userBalance, setUserBalance] = useState('');
   const [userTransactions, setUserTransactions] = useState(transactions);
   const [chartData, setChartData] = useState(defaultChartData);
 
+  // tracking input from text entry
   const [userDestination, setUserDestination] = useState('');
   const [sendAmount, setSendAmount] = useState('');
 
+  // Fail-safe loading bar incase we have a time intensive transaction history
   const [isLoadingTransactionHistory, setIsLoadingTransactionHistory] =
     useState(true);
 
-  let balanceOverTime = [];
-  let timeLine = [];
-
-  const dateOptions = { month: 'short', day: 'numeric' };
-
-  const getTransactionHistory = async () => {
+  // function to manipulate the transaction data for our user
+  const getTransactionHistory = () => {
+    const balanceOverTime = [];
+    const timeLine = [];
+    const dateOptions = { month: 'short', day: 'numeric' };
     userTransactions.forEach((el) => {
       let d = new Date(el.timestamp).toLocaleDateString('en-US', dateOptions);
 
@@ -65,23 +68,24 @@ const AccountScreen = ({ navigation: { navigate }, route }) => {
       }
     });
 
+    //optional, giving the current balance and time on the chart...
     balanceOverTime.push(balanceOverTime[balanceOverTime.length - 1]);
     timeLine.push(new Date().toLocaleDateString('en-US', dateOptions));
 
     setChartData({ ...chartData, labels: timeLine });
-
     setChartData({ ...chartData, datasets: [{ data: balanceOverTime }] });
-
     setIsLoadingTransactionHistory(false);
   };
 
+  // everytime the user jumps into this screen we update the balance and transactions
   useEffect(() => {
+    setUserBalance(balance);
+    setUserTransactions(transactions);
     getTransactionHistory();
-  }, []);
-
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  }, [route.params]);
 
   // I considered abstracting this out, along with some of the other functions, as they're called more than once. Probably what should be done...
+
   const getUserData = async () => {
     const userResult = await fetch(
       `http://jobcoin.gemini.com/justifier-excursion/api/addresses/${userName}`,
@@ -90,6 +94,9 @@ const AccountScreen = ({ navigation: { navigate }, route }) => {
     setUserBalance(returnedUserData.balance);
     setUserTransactions(returnedUserData.transactions);
   };
+
+  //another ternery to show the refershing wheel at the top of the page
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -100,17 +107,17 @@ const AccountScreen = ({ navigation: { navigate }, route }) => {
       // eslint-disable-next-line no-unused-vars
       const transactionHistory = await getTransactionHistory();
       setIsRefreshing(false);
-    }, 1000);
+    }, 500);
   };
 
   const handleJobCoinSend = () => {
-    setUserDestination('');
-    setSendAmount('');
     navigate('Confirming Payment', {
       user: userName,
       userDestination: userDestination,
       sendAmount: sendAmount,
     });
+    setUserDestination('');
+    setSendAmount('');
   };
 
   return (
@@ -224,7 +231,6 @@ const styles = StyleSheet.create({
   },
   button: {
     alignItems: 'center',
-    backgroundColor: '#DDDDDD',
     padding: 10,
     marginVertical: 10,
     marginHorizontal: 10,

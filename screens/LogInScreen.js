@@ -24,6 +24,7 @@ const LogInScreen = ({ navigation: { navigate } }) => {
     // If there is no user, we should have a sign-up page, but that's beyond scope...
     // And why doesn't the API ever return 404? So the check needs to be if transactions.length > 0;
     if (returnedUserData.transactions.length > 0) {
+      setLoginError('');
       navigate('Account', {
         user: userName,
         balance: returnedUserData.balance,

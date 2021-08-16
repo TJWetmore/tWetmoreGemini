@@ -6,6 +6,7 @@ const TransferSafety = ({ navigation: { navigate }, route }) => {
 
   const [showIcon, setShowIcon] = useState(false);
 
+  //this function should be in a separate file that we import to this file...
   const fetchUpdatedProfile = async () => {
     const userResult = await fetch(
       `http://jobcoin.gemini.com/justifier-excursion/api/addresses/${user}`,
@@ -23,9 +24,10 @@ const TransferSafety = ({ navigation: { navigate }, route }) => {
       } else {
         navigate('Login');
       }
-    }, 1000);
+    }, 500);
   };
 
+  // sending JC function. I have some delays on here just so everything isn't instantaenous. 
   const sendJobCoins = async () => {
     await fetch(
       'http://jobcoin.gemini.com/justifier-excursion/api/transactions',
@@ -41,11 +43,10 @@ const TransferSafety = ({ navigation: { navigate }, route }) => {
           amount: sendAmount,
         }),
       },
-    ).then(() => {
-      setTimeout(() => {
-        fetchUpdatedProfile();
-      }, 2000);
-    });
+    );
+    setTimeout(() => {
+      fetchUpdatedProfile();
+    }, 1000);
   };
 
   useEffect(() => {

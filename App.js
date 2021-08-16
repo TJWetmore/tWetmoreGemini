@@ -1,21 +1,40 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-export default function App() {
+import AccountScreen from './screens/AccountScreen';
+import LogInScreen from './screens/LogInScreen';
+import TransferSafety from './screens/TransferSafetyScreen';
+
+const RootStack = createStackNavigator();
+const MainStack = createStackNavigator();
+
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <RootStack.Navigator mode="modal">
+        <RootStack.Screen
+          name="Main"
+          component={MainStackScreens}
+          options={{ headerShown: false }}
+        />
+      </RootStack.Navigator>
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const MainStackScreens = () => {
+  return (
+    <MainStack.Navigator>
+      <MainStack.Screen name="Login" component={LogInScreen} />
+      <MainStack.Screen name="Account" component={AccountScreen} />
+      <MainStack.Screen
+        name="Confirming Payment"
+        component={TransferSafety}
+        options={{ headerShown: false }}
+      />
+    </MainStack.Navigator>
+  );
+};
+
+export default App;

@@ -30,4 +30,4 @@ Page 3: Send JC loading screen
 
 - I think the functions should be abstracted out. I am not adhering to DRY principles by having the same function across multiple pages. 
 
-- I like the idea of Detox, as I really enjoy E2E testing. I think it is fun. But I'm better at Cypress and so I spent a bit of time trying to read up on setting up Detox. It's not the best framework. But would be fun to contribute too the OS project. 
+- I like the idea of Detox, as I really enjoy E2E testing. I think it is fun. But I'm better at Cypress and so I spent a bit of time trying to read up on setting up Detox. It's not my favorite framework. But would be fun to contribute too the OS project. 

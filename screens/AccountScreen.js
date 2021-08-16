@@ -26,11 +26,11 @@ const defaultChartData = {
 };
 
 const AccountScreen = ({ navigation: { navigate }, route }) => {
-  const { user, balance, transactions } = route.params;
+  let { user, balance, transactions } = route.params;
 
   // Taking state from params so I can manipulate it later
   const [userName, setUserName] = useState(user);
-  const [userBalance, setUserBalance] = useState('');
+  const [userBalance, setUserBalance] = useState();
   const [userTransactions, setUserTransactions] = useState(transactions);
   const [chartData, setChartData] = useState(defaultChartData);
 
@@ -41,6 +41,14 @@ const AccountScreen = ({ navigation: { navigate }, route }) => {
   // Fail-safe loading bar incase we have a time intensive transaction history
   const [isLoadingTransactionHistory, setIsLoadingTransactionHistory] =
     useState(true);
+
+  useEffect(() => {
+    setUserBalance(balance);
+    setUserTransactions(transactions);
+    setTimeout(() => {
+      getTransactionHistory();
+    }, 2000);
+  }, [route.params]);
 
   // function to manipulate the transaction data for our user
   const getTransactionHistory = () => {
@@ -78,11 +86,6 @@ const AccountScreen = ({ navigation: { navigate }, route }) => {
   };
 
   // everytime the user jumps into this screen we update the balance and transactions
-  useEffect(() => {
-    setUserBalance(balance);
-    setUserTransactions(transactions);
-    getTransactionHistory();
-  }, [route.params]);
 
   // I considered abstracting this out, along with some of the other functions, as they're called more than once. Probably what should be done...
 
@@ -98,16 +101,11 @@ const AccountScreen = ({ navigation: { navigate }, route }) => {
   //another ternery to show the refershing wheel at the top of the page
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-
-    setTimeout(async () => {
-      // eslint-disable-next-line no-unused-vars
-      const userData = await getUserData();
-      // eslint-disable-next-line no-unused-vars
-      const transactionHistory = await getTransactionHistory();
-      setIsRefreshing(false);
-    }, 500);
+    const userData = await getUserData();
+    const transactionHistory = await getTransactionHistory();
+    setIsRefreshing(false);
   };
 
   const handleJobCoinSend = () => {

@@ -5,6 +5,7 @@ const TransferSafety = ({ navigation: { navigate }, route }) => {
   const { user, userDestination, sendAmount } = route.params;
 
   const [showIcon, setShowIcon] = useState(false);
+  const [errors, setShowErrors] = useState(false);
 
   //this function should be in a separate file that we import to this file...
   const fetchUpdatedProfile = async () => {
@@ -12,7 +13,6 @@ const TransferSafety = ({ navigation: { navigate }, route }) => {
       `http://jobcoin.gemini.com/justifier-excursion/api/addresses/${user}`,
     );
     const returnedUserData = await userResult.json();
-
     setShowIcon(true);
     setTimeout(function () {
       if (userResult.ok) {
@@ -24,29 +24,38 @@ const TransferSafety = ({ navigation: { navigate }, route }) => {
       } else {
         navigate('Login');
       }
-    }, 500);
+    }, 1000);
   };
 
-  // sending JC function. I have some delays on here just so everything isn't instantaenous. 
+  // sending JC function. I have some delays on here just so everything isn't instantaenous.
   const sendJobCoins = async () => {
-    await fetch(
-      'http://jobcoin.gemini.com/justifier-excursion/api/transactions',
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+    try {
+      await fetch(
+        'http://jobcoin.gemini.com/justifier-excursion/api/transactions',
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fromAddress: user,
+            toAddress: userDestination,
+            amount: sendAmount,
+          }),
         },
-        body: JSON.stringify({
-          fromAddress: user,
-          toAddress: userDestination,
-          amount: sendAmount,
-        }),
-      },
-    );
-    setTimeout(() => {
-      fetchUpdatedProfile();
-    }, 1000);
+      );
+      setTimeout(() => {
+        fetchUpdatedProfile();
+      }, 2000);
+    } catch (error) {
+      setShowErrors(true);
+
+      setTimeout(() => {
+        navigate('Account', { user: user });
+        setShowErrors(false);
+      }, 2000);
+    }
   };
 
   useEffect(() => {
@@ -56,10 +65,12 @@ const TransferSafety = ({ navigation: { navigate }, route }) => {
 
   const loading = <ActivityIndicator size="large" />;
   const iconDisplay = <Text style={styles.icon}> 👍</Text>;
+  const errorDisplay = <Text style={styles.icon}> Did not send :(</Text>;
 
   return (
     <View style={styles.safetyContainer}>
       {showIcon ? iconDisplay : loading}
+      {errors && errorDisplay}
     </View>
   );
 };

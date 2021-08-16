@@ -24,7 +24,7 @@ Page 3: Send JC loading screen
 
 
 **The bug:** 
-- The chart doesn't update on the Account page after we return from the Send JC loading screen. It probably isn't the hardest bug to crack, there's probably just some async issues. 
+- The chart doesn't update on the Account page after we return from the Send JC loading screen. It does updated when the user reloads the page. It probably isn't the hardest bug to crack, there's probably just some async issues. 
 
 **Also note:**
 
